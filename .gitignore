@@ -1,0 +1,17 @@
+.idea/
+*.iml
+*.iws
+*.ipr
+
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+vendor/
+
+.DS_Store
+Thumbs.db
+.env

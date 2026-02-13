@@ -1,0 +1,36 @@
+services:
+  app:
+    container_name: service
+    build: .
+    restart: always
+    depends_on:
+      - db
+    environment:
+      - PG_DRIVER=${PG_DRIVER}
+      - PG_DSN=${PG_DSN}
+    ports:
+      - "${PORT:-8080}:8080"
+    networks:
+      - app_network
+
+  db:
+    container_name: postgres
+    image: postgres:alpine
+    restart: always
+    volumes:
+      - data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=${PG_USER}
+      - POSTGRES_PASSWORD=${PG_PASSWORD}
+      - POSTGRES_DB=${PG_DB}
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
+    networks:
+      - app_network
+
+volumes:
+  data:
+
+networks:
+  app_network:
+    driver: bridge
