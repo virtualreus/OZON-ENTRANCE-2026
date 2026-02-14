@@ -1,7 +1,9 @@
 package entities
 
+import "time"
+
 type Link struct {
-	Short     string `db:"short"`
-	Original  string `db:"original"`
-	CreatedAt int64  `db:"created_at"`
+	Short     string    `db:"short"`
+	Original  string    `db:"original"`
+	CreatedAt time.Time `db:"created_at"`
 }

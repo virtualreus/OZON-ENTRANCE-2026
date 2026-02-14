@@ -1,9 +1,9 @@
 package dto
 
 type ShortLink struct {
-	Link string `json:"link"`
+	Short string `json:"short"`
 }
 
 type OriginalLink struct {
-	Link string `json:"link"`
+	Original string `json:"original"`
 }
