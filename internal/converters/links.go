@@ -7,6 +7,10 @@ import (
 
 type LinksConverter struct{}
 
+func NewLinksConverter() *LinksConverter {
+	return &LinksConverter{}
+}
+
 func (c LinksConverter) ToOriginalDTO(link entities.Link) *dto.OriginalLink {
 	return &dto.OriginalLink{
 		Original: link.Original,

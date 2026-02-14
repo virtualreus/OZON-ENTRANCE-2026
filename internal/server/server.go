@@ -2,17 +2,27 @@ package server
 
 import (
 	"fmt"
-	"github.com/go-chi/chi/v5"
 	"log"
 	"net/http"
+	"ozon_entrance/internal/adapter/repository/postgres_repo"
+	"ozon_entrance/internal/domain/ports/repository"
 	"ozon_entrance/internal/infrastructure/database/postgres"
+	"ozon_entrance/internal/usecase"
+	"ozon_entrance/internal/usecase/links_usecase"
 	"time"
+
+	"github.com/go-chi/chi/v5"
 )
 
 type Server struct {
 	database *postgres.Postgres
-	router   *chi.Mux
-	server   *http.Server
+	// repo
+	linksRepository repository.LinksRepository
+
+	// uc
+	linksUseCase usecase.LinksUseCase
+	router       *chi.Mux
+	server       *http.Server
 }
 
 func NewServer() (*Server, error) {
@@ -31,6 +41,9 @@ func (s *Server) init() error {
 	if err := postgres.MigrateDB(s.database); err != nil {
 		return fmt.Errorf("migration err: %w", err)
 	}
+	s.initRepo()
+	s.initUseCases()
+	s.initRoutes()
 	s.initHTTPServer()
 	return nil
 }
@@ -46,6 +59,16 @@ func (s *Server) initDB() error {
 	}
 	s.database = pg
 	return nil
+}
+
+func (s *Server) initRepo() {
+	//TODO: сделать проверку на переменную окружения и в зависимости от нее присваивать конкретную имплементацию репы
+	// пока пг по дефолту. потом 3 строчки добавить. во всю использую прелести гекс архи :D
+	s.linksRepository = postgres_repo.NewLinksRepository(s.database)
+}
+
+func (s *Server) initUseCases() {
+	s.linksUseCase = links_usecase.NewLinksUseCase(s.linksRepository)
 }
 
 func (s *Server) initHTTPServer() {

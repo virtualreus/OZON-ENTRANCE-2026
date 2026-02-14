@@ -16,11 +16,12 @@ type linksUseCase struct {
 func NewLinksUseCase(linksRepository repository.LinksRepository) usecase.LinksUseCase {
 	return &linksUseCase{
 		linksRepository: linksRepository,
+		linksConverter:  converters.NewLinksConverter(),
 	}
 }
 
-func (u *linksUseCase) CreateLink(ctx context.Context, originalLink string) (*dto.ShortLink, error) {
-	link, err := u.linksRepository.SaveLink(ctx, originalLink)
+func (u *linksUseCase) CreateLink(ctx context.Context, originalLink dto.OriginalLink) (*dto.ShortLink, error) {
+	link, err := u.linksRepository.SaveLink(ctx, originalLink.Original)
 	if err != nil {
 		return nil, err
 	}

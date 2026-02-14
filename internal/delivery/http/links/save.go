@@ -1,0 +1,26 @@
+package links
+
+import (
+	"encoding/json"
+	"net/http"
+	"ozon_entrance/internal/domain/dto"
+	"ozon_entrance/internal/usecase"
+	httpError "ozon_entrance/pkg/http/error"
+	"ozon_entrance/pkg/http/writer"
+)
+
+func CreateLink(uc usecase.LinksUseCase) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req dto.OriginalLink
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			httpError.InternalError(w, err)
+			return
+		}
+		short, err := uc.CreateLink(r.Context(), req)
+		if err != nil {
+			httpError.InternalError(w, err)
+			return
+		}
+		writer.WriteJson(w, short)
+	}
+}
