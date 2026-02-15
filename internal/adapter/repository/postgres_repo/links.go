@@ -9,6 +9,7 @@ import (
 	"ozon_entrance/internal/domain/ports/repository"
 	"ozon_entrance/internal/errs"
 	"ozon_entrance/internal/infrastructure/database/postgres"
+	"ozon_entrance/pkg/logger"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -49,6 +50,7 @@ func (l linksRepository) SaveLink(ctx context.Context, originalLink, shortUrl st
 		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
 			return entities.Link{}, errs.ErrDuplicate
 		}
+		logger.FromContext(ctx).Error("SaveLink: insert failed", "err", err)
 		return entities.Link{}, fmt.Errorf(prefix+"insert failed: %w", err)
 	}
 
@@ -87,6 +89,7 @@ func (l linksRepository) GetLink(ctx context.Context, shortLink string) (entitie
 		if errors.Is(err, sql.ErrNoRows) {
 			return entities.Link{}, errs.ErrNotFound
 		}
+		logger.FromContext(ctx).Error("GetLink: query failed", "err", err)
 		return entities.Link{}, fmt.Errorf(prefix+"query err: %w", err)
 	}
 

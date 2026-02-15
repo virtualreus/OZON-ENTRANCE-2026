@@ -1,5 +1,5 @@
 package generator
 
 type ShortLinkGenerator interface {
-	GenerateShortLink() string
+	GenerateShortLink() (string, error)
 }

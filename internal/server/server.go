@@ -1,10 +1,14 @@
 package server
 
 import (
+	"context"
+	"errors"
 	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -17,19 +21,21 @@ import (
 	"ozon_entrance/internal/infrastructure/generator"
 	"ozon_entrance/internal/usecase"
 	"ozon_entrance/internal/usecase/links_usecase"
+	"ozon_entrance/pkg/logger"
 )
 
 type Server struct {
-	// storages
+	logger *slog.Logger
+
 	database *postgres.Postgres
 	inMemory *in_memory.InMemory
-	// repo
+
 	linksRepository repository.LinksRepository
 
-	// uc
 	linksUseCase usecase.LinksUseCase
-	router       *chi.Mux
-	server       *http.Server
+
+	router *chi.Mux
+	server *http.Server
 }
 
 func NewServer() (*Server, error) {
@@ -41,6 +47,7 @@ func NewServer() (*Server, error) {
 }
 
 func (s *Server) init() error {
+	s.logger = logger.New()
 	s.router = chi.NewRouter()
 	if err := s.initDB(); err != nil {
 		return fmt.Errorf("err on initial database: %w", err)
@@ -60,17 +67,19 @@ func (s *Server) init() error {
 func (s *Server) initDB() error {
 	if s.storageInMemory() {
 		s.inMemory = in_memory.NewInMemory()
+		s.logger.Info("storage: in-memory")
 		return nil
 	}
 	config, err := postgres.NewConfig()
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	pg, err := postgres.NewPostgres(config)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	s.database = pg
+	s.logger.Info("storage: postgres")
 	return nil
 }
 
@@ -101,8 +110,23 @@ func (s *Server) initHTTPServer() {
 }
 
 func (s *Server) Run() {
-	log.Println("Server started")
-	if err := s.server.ListenAndServe(); err != nil {
-		log.Fatal(err)
+	go func() {
+		s.logger.Info("server started", "addr", s.server.Addr)
+		if err := s.server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			s.logger.Error("listen failed", "err", err)
+			os.Exit(1)
+		}
+	}()
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := s.server.Shutdown(ctx); err != nil {
+		s.logger.Error("shutdown", "err", err)
+		return
 	}
+	s.logger.Info("server stopped")
 }
