@@ -6,6 +6,7 @@ services:
     depends_on:
       - db
     environment:
+      - IN_MEM=${IN_MEM:-false}
       - PG_DRIVER=${PG_DRIVER}
       - PG_DSN=${PG_DSN}
     ports:

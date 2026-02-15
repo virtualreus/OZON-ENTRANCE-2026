@@ -10,6 +10,6 @@ CREATE INDEX idx_urls_original_url ON urls (original_url);
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE urls
-DROP INDEX idx_urls_original_url
+DROP TABLE IF EXISTS urls;
+DROP INDEX IF EXISTS idx_urls_original_url;
 -- +goose StatementEnd

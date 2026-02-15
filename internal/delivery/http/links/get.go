@@ -1,7 +1,9 @@
 package links
 
 import (
+	"errors"
 	"net/http"
+	"ozon_entrance/internal/errs"
 	"ozon_entrance/internal/usecase"
 	httpError "ozon_entrance/pkg/http/error"
 	"ozon_entrance/pkg/http/writer"
@@ -18,6 +20,10 @@ func GetLinkByShort(uc usecase.LinksUseCase) http.HandlerFunc {
 		}
 		link, err := uc.GetLink(r.Context(), short)
 		if err != nil {
+			if errors.Is(err, errs.ErrNotFound) || errors.Is(err, errs.ErrInvalidShortLink) {
+				httpError.BadRequest(w, err)
+				return
+			}
 			httpError.InternalError(w, err)
 			return
 		}

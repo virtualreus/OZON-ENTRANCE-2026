@@ -6,6 +6,6 @@ import (
 )
 
 type LinksRepository interface {
-	SaveLink(ctx context.Context, originalLink string) (entities.Link, error)
+	SaveLink(ctx context.Context, originalLink, shortUrl string) (entities.Link, error)
 	GetLink(ctx context.Context, shortLink string) (entities.Link, error)
 }

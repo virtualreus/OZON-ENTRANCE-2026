@@ -2,8 +2,10 @@ package links
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"ozon_entrance/internal/domain/dto"
+	"ozon_entrance/internal/errs"
 	"ozon_entrance/internal/usecase"
 	httpError "ozon_entrance/pkg/http/error"
 	"ozon_entrance/pkg/http/writer"
@@ -18,6 +20,10 @@ func CreateLink(uc usecase.LinksUseCase) http.HandlerFunc {
 		}
 		short, err := uc.CreateLink(r.Context(), req)
 		if err != nil {
+			if errors.Is(err, errs.ErrInvalidURLFormat) || errors.Is(err, errs.ErrEmptyURL) {
+				httpError.BadRequest(w, err)
+				return
+			}
 			httpError.InternalError(w, err)
 			return
 		}
