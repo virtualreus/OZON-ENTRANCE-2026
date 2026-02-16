@@ -9,4 +9,6 @@ var (
 
 	ErrEmptyURL         = errors.New("url is empty")
 	ErrInvalidURLFormat = errors.New("invalid url format")
+
+	ErrInternal = errors.New("db error")
 )

@@ -17,7 +17,7 @@ func GetLinkByShort(uc usecase.LinksUseCase) http.HandlerFunc {
 		short := chi.URLParam(r, "short")
 		if short == "" {
 			logger.FromContext(r.Context()).Debug("GetLink: empty short param")
-			httpError.InternalError(w, nil)
+			httpError.BadRequest(w, errs.ErrInvalidShortLink)
 			return
 		}
 		link, err := uc.GetLink(r.Context(), short)
