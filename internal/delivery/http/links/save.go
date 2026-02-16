@@ -17,7 +17,7 @@ func CreateLink(uc usecase.LinksUseCase) http.HandlerFunc {
 		var req dto.OriginalLink
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			logger.FromContext(r.Context()).Debug("CreateLink: decode error", "err", err)
-			httpError.InternalError(w, err)
+			httpError.BadRequest(w, errs.ErrInvalidJSON)
 			return
 		}
 		short, err := uc.CreateLink(r.Context(), req)
@@ -26,7 +26,7 @@ func CreateLink(uc usecase.LinksUseCase) http.HandlerFunc {
 				httpError.BadRequest(w, err)
 				return
 			}
-			logger.FromContext(r.Context()).Error("CreateLink handler", "err", err)
+			logger.FromContext(r.Context()).Error("CreateLink", "err", err)
 			httpError.InternalError(w, err)
 			return
 		}

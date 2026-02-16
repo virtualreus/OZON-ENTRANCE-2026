@@ -30,12 +30,12 @@ func GetLinkByShort(uc usecase.LinksUseCase) http.HandlerFunc {
 				httpError.NotFound(w, err)
 				return
 			}
-			logger.FromContext(r.Context()).Error("GetLink handler", "err", err)
+			logger.FromContext(r.Context()).Error("GetLink", "err", err)
 			httpError.InternalError(w, err)
 			return
 		}
 		if link == nil {
-			w.WriteHeader(http.StatusNotFound)
+			httpError.NotFound(w, errs.ErrNotFound)
 			return
 		}
 		writer.WriteJson(w, link)

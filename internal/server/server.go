@@ -101,8 +101,13 @@ func (s *Server) initUseCases() {
 }
 
 func (s *Server) initHTTPServer() {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	addr := ":" + port
 	s.server = &http.Server{
-		Addr:         ":8080",
+		Addr:         addr,
 		Handler:      s.router,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,

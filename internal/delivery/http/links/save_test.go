@@ -64,7 +64,7 @@ func TestCreateLink(t *testing.T) {
 			name:     "decode error",
 			body:     `{invalid`,
 			setup:    func() {},
-			wantCode: http.StatusInternalServerError,
+			wantCode: http.StatusBadRequest,
 		},
 	}
 	for _, tt := range tests {

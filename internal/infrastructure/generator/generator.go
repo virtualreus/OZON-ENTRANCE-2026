@@ -24,7 +24,7 @@ func (sg *ShortGenerator) GenerateShortLink() (string, error) {
 	for i := range b {
 		n, err := rand.Int(rand.Reader, mx)
 		if err != nil {
-			return "", fmt.Errorf("failed to generate random сhar: %w", err)
+			return "", fmt.Errorf("failed to generate random char: %w", err)
 		}
 		b[i] = charset[n.Int64()]
 	}
